@@ -1,3 +1,5 @@
+###
+# @name loginPartner1
 POST http://localhost:3000/auth/login
 Content-Type: application/json
 
@@ -7,41 +9,88 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3000/partners
+@tokenPartner1 = {{ loginPartner1.response.body.token }}
+
+###
+# @name loginPartner2
+POST http://localhost:3000/auth/login
 Content-Type: application/json
 
-{   "name": "Partner 1",
-    "email": "partner1@user.com",
-    "password": "secret",
-    "company_name": "Company name 1"
+{
+    "email": "partner2@user.com",
+    "password": "secret"
 }
 
 ###
-POST http://localhost:3000/customers
+@tokenPartner2 = {{ loginPartner2.response.body.token }}
+
+###
+# @name loginCustomer1
+POST http://localhost:3000/auth/login
 Content-Type: application/json
 
-{   "name": "Customers 1",
+{
+    "email": "customer1@user.com",
+    "password": "secret"
+}
+
+###
+@tokenCustomer1 = {{ loginCustomer1.response.body.token }}
+
+### Criação do partner 1
+POST http://localhost:3000/partners/register
+Content-Type: application/json
+
+{
+    "name": "Partner 1",
+    "email": "partner1xpto@user.com",
+    "password": "secret",
+    "company_name": "Company Name 1"
+}
+
+### Criação do partner 2
+POST http://localhost:3000/partners/register
+Content-Type: application/json
+
+{
+    "name": "Partner 2",
+    "email": "partner2@user.com",
+    "password": "secret",
+    "company_name": "Company Name 2"
+}
+
+###
+POST http://localhost:3000/customers/register
+Content-Type: application/json
+
+{
+    "name": "Customer 1",
     "email": "customer1@user.com",
     "password": "secret",
     "address": "address test",
-    "phone": "33333333"
+    "phone": "333333333"
 }
 
 ### Criação do evento pelo parceiro
 POST http://localhost:3000/partners/events
 Content-Type: application/json
+Authorization: Bearer {{ tokenPartner1 }}
 
-{   "name": "Evento 1",
-    "description": "partner1@user.com",
+{
+    "name": "Evento test 1",
+    "description": "descrição do evento",
     "date": "2025-01-01T00:00:00",
     "location": "Rua x, bairro etc"
 }
 
-### Listagem de evento pelo parceiro
+### Listagem de eventos do parceiro
 GET http://localhost:3000/partners/events
+Authorization: Bearer {{ tokenPartner2 }}
 
-### Listagem de um evento pelo parceiro 
-GET http://localhost:3000/partners/events/1
+### ### Listagem de um evento do parceiro
+GET http://localhost:3000/partners/events/1000
+Authorization: Bearer {{ tokenPartner1 }}
+
 
 ### Listagem de eventos
 GET http://localhost:3000/events
