@@ -43,7 +43,7 @@ Content-Type: application/json
 
 {
     "name": "Partner 1",
-    "email": "partner1xpto@user.com",
+    "email": "partner1@user.com",
     "password": "secret",
     "company_name": "Company Name 1"
 }
@@ -85,12 +85,21 @@ Authorization: Bearer {{ tokenPartner1 }}
 
 ### Listagem de eventos do parceiro
 GET http://localhost:3000/partners/events
-Authorization: Bearer {{ tokenPartner2 }}
-
-### ### Listagem de um evento do parceiro
-GET http://localhost:3000/partners/events/1000
 Authorization: Bearer {{ tokenPartner1 }}
 
+### ### Listagem de um evento do parceiro
+GET http://localhost:3000/partners/events/1
+Authorization: Bearer {{ tokenPartner1 }}
+
+### Criação de tickets
+POST http://localhost:3000/events/1/tickets
+Content-Type: application/json
+Authorization: Bearer {{ tokenPartner1 }}
+
+{
+    "num_tickets": 10,
+    "price": 100
+}
 
 ### Listagem de eventos
 GET http://localhost:3000/events
