@@ -1,16 +1,16 @@
 import { UserModel } from './../models/user-model';
 import * as mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
-import { createConnection } from "../../database";
+import { Database } from '../../database';
 
 
 export class CustomerService {
     async register(data: { name: string; email: string; password: string; address: string; phone: string; }) {
 
-        const { name, email, password, address, phone } = data;
+    const { name, email, password, address, phone } = data;
 
-  const connection = await createConnection();
-  try {
+    const connection = Database.getInstance();
+  
     const createdAt = new Date();
     const hashedPassword = bcrypt.hashSync(password, 10);
     const userModel = await UserModel.create({ name, email, password: hashedPassword });
@@ -27,8 +27,6 @@ export class CustomerService {
       phone,
       created_at: createdAt,
     };
-  } finally {
-    await connection.end();
-  }
+  
     }
 }
