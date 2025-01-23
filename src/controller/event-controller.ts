@@ -1,45 +1,23 @@
 import { Router } from "express";
-import * as mysql from 'mysql2/promise';
-import { createConnection } from "../../database";
+import { EventService } from "../services/event-service";
 
 export const eventRoutes = Router();
 
 
 eventRoutes.get("/", async (req, res) => {
-  const connection = await createConnection();
-  try {
-    const [eventRows] = await connection.execute<mysql.RowDataPacket[]>(
-      "SELECT * FROM events"
-    );
-    res.json(eventRows);
-  } catch (error) {
-    console.error('Erro ao buscar eventos:', error);
-    res.status(500).json({ message: "Erro interno do servidor" });
-  } finally {
-    await connection.end();
-  }
+  const eventService = new EventService();
+  const result = await eventService.findAll();
+  res.json(result);
 });
 
 eventRoutes.get("/:eventId", async (req, res) => {
   const { eventId } = req.params;
-  const connection = await createConnection();
-  try {
-    const [eventRows] = await connection.execute<mysql.RowDataPacket[]>(
-      "SELECT * FROM events WHERE id = ?",
-      [eventId]
-    );
-    const event = eventRows.length ? eventRows[0] : null;
+  const eventService = new EventService();
+  const event = await eventService.findById(+eventId);
 
-    if (!event) {
-      res.status(404).json({ message: "Evento não encontrado" });
-      return;
-    }
-
-    res.json(event);
-  } catch (error) {
-    console.error('Erro ao buscar evento:', error);
-    res.status(500).json({ message: "Erro interno do servidor" });
-  } finally {
-    await connection.end();
+  if (!event) {
+    res.status(404).json({ message: "Event not found" });
   }
+
+  res.json(event);
 });

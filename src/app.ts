@@ -1,11 +1,11 @@
 import express from 'express';
-import * as mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
-import { createConnection } from '../database';
+import { Database } from '../database';
 import { authRoutes } from './controller/auth-controller';
 import { partnerRoutes } from './controller/partner-controller';
 import { customerRoutes } from './controller/customer-controller';
 import { eventRoutes } from './controller/event-controller';
+import { UserService } from './services/user-service';
 
 
 const app = express();
@@ -35,12 +35,9 @@ app.use(async (req, res, next) => {
   }
   try {
     const payload = jwt.verify(token, "12456") as { id: number, email: string };
-    const connection = await createConnection();
-    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      'SELECT * FROM users WHERE id = ?',
-      [payload.id]
-    )
-    const user = rows.length ? rows[0] : null;
+    
+    const userService = new UserService();
+    const user = await userService.findById(payload.id);
     if (!user) {
       res.status(401).json({ message: "Invalid token" });
       return;
@@ -69,7 +66,7 @@ app.use('/events', eventRoutes);
 
 
 app.listen(3000, async () => {
-    const connection = await createConnection();
+    const connection = Database.getInstance();
     await connection.execute("SET FOREIGN_KEY_CHECKS = 0");
     await connection.execute("TRUNCATE TABLE events");
     await connection.execute("TRUNCATE TABLE customers");
